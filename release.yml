@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Create release archive
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          tar -czf kernelmind-${VERSION}.tar.gz \
+            --exclude='.git' \
+            --exclude='__pycache__' \
+            --exclude='*.pyc' \
+            --exclude='.pytest_cache' \
+            --exclude='dist' \
+            --exclude='*.egg-info' \
+            .
+          echo "RELEASE_FILE=kernelmind-${VERSION}.tar.gz" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: KernelMind v${{ env.VERSION }}
+          body: |
+            ## KernelMind v${{ env.VERSION }}
+
+            IA leve e ética para gestão de kernel.
+
+            ### Instalação
+            ```bash
+            wget https://github.com/armazen-nft/kernelmind/releases/download/v${{ env.VERSION }}/kernelmind-${{ env.VERSION }}.tar.gz
+            tar -xzf kernelmind-${{ env.VERSION }}.tar.gz
+            python3 install.py
+            ```
+
+            ### Componentes
+            - KernelSense — leitura real de métricas
+            - MemoryWeaver — otimização de RAM
+            - StorageGuard — análise de disco
+            - ThreatRadar — detecção de anomalias
+            - EthicsLock — restrições imutáveis
+            - API REST (FastAPI, porta 7771)
+            - CLI (`km`)
+            - MCP Server (PoE namespace)
+          files: ${{ env.RELEASE_FILE }}
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
