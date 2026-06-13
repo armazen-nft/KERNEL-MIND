@@ -49,6 +49,8 @@ mcp = [
 [project.scripts]
 km = "kernelmind.cli.km:main"
 kernelmind = "kernelmind.cli.km:main"
+km-api = "kernelmind.api.server:main"
+km-mcp = "kernelmind.mcp.tool:main"
 
 [project.urls]
 Homepage = "https://github.com/armazen-nft/kernelmind"
