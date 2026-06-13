@@ -1,60 +1,71 @@
 # KernelMind
 
-> IA leve e ética para gestão de kernel em notebooks e computadores.  
-> Observa. Sugere. Age apenas com consentimento humano.
+> IA leve e ética para observação de kernel em notebooks e computadores.
+> Observa. Sugere. Não executa ações destrutivas sem consentimento humano.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
-[![Kernel: Linux 4.15+](https://img.shields.io/badge/Kernel-Linux%204.15%2B-orange.svg)]()
-[![Ethics: Active](https://img.shields.io/badge/EthicsLock-active-brightgreen.svg)]()
+[![Kernel: Linux 4.15+](https://img.shields.io/badge/Kernel-Linux%204.15%2B-orange.svg)](https://kernel.org)
+[![Ethics: Active](https://img.shields.io/badge/EthicsLock-active-brightgreen.svg)](docs/ethics.md)
 [![PoE Ecosystem](https://img.shields.io/badge/PoE-Ecosystem-blueviolet.svg)](https://proofofenergy.blogspot.com)
 
 ---
 
 ## O que é
 
-KernelMind é um daemon de monitoramento e otimização de sistema operacional governado por uma camada ética imutável (EthicsLock). Ele lê métricas reais do kernel via `/proc`, `/sys` e `psutil`, analisa padrões, e propõe ações — mas **nunca age sem confirmação humana explícita**.
+KernelMind é um pacote Python para monitoramento e sugestão de otimização de sistema operacional. Ele lê métricas reais via `psutil`, `/proc` e interfaces do kernel, analisa padrões de CPU, RAM, disco e processos, e devolve sugestões auditáveis.
 
-Faz parte do ecossistema **Proof of Energy (PoE)** e é compatível com o protocolo MCP (Model Context Protocol) da Anthropic para integração com IAs.
+A regra de segurança do projeto é simples: os módulos oficiais podem **ler** e **sugerir** automaticamente, mas ações como ajuste de kernel, encerramento de processo, exclusão de arquivo/cache ou transmissão de dados exigem o fluxo do `EthicsLock`.
+
+> Nota de escopo: o `EthicsLock` protege o fluxo oficial do KernelMind. Como todo software livre, forks ou alterações no código devem ser auditados por testes, revisão e hashes de release.
 
 ---
 
-## Arquitetura
+## Estrutura canônica
 
-```
+```text
 kernelmind/
 ├── core/
-│   ├── sensor.py        # KernelSense — leitura real de métricas
-│   └── memory.py        # MemoryWeaver — análise e sugestões de RAM
+│   ├── sensor.py        # KernelSense — leitura de métricas reais
+│   ├── memory.py        # MemoryWeaver — análise/sugestões de RAM
+│   ├── storage.py       # StorageGuard — análise/sugestões de disco
+│   └── threat.py        # ThreatRadar — detecção de anomalias
 ├── ethics/
-│   └── lock.py          # EthicsLock — restrições imutáveis
+│   └── lock.py          # EthicsLock — política e auditoria
 ├── api/
-│   └── server.py        # FastAPI REST — porta 7771
+│   └── server.py        # FastAPI REST — porta padrão 7771
 ├── cli/
 │   └── km.py            # Interface de linha de comando
-├── mcp/
-│   └── tool.py          # Integração MCP (PoE namespace)
-├── tests/               # Testes automatizados
-├── docs/                # Documentação detalhada
-├── config/
-│   └── defaults.toml    # Configuração padrão
-└── scripts/
-    └── setup.sh         # Instalação para sistemas Unix
+└── mcp/
+    └── tool.py          # Servidor MCP stdio
+
+tests/                   # Testes automatizados
+config/defaults.toml     # Configuração padrão documentada
+docs/                    # Documentação complementar
+scripts/setup.sh         # Instalação local em modo editável
 ```
+
+Diretórios e artefatos de staging/release não fazem parte da fonte de verdade. A implementação oficial fica no pacote `kernelmind`.
 
 ---
 
 ## Instalação rápida
 
-### Linux / macOS
+### Desenvolvimento local
 
 ```bash
-git clone https://github.com/armazen-nft/kernelmind.git
-cd kernelmind
-python3 install.py
+git clone https://github.com/armazen-nft/KERNEL-MIND.git
+cd KERNEL-MIND
+python -m pip install -e .[dev]
 ```
 
-### Via pip (quando publicado)
+### Script auxiliar
+
+```bash
+bash scripts/setup.sh
+```
+
+### Via pip
 
 ```bash
 pip install kernelmind
@@ -67,10 +78,18 @@ pip install kernelmind
 ```bash
 km snapshot      # estado do sistema agora
 km memory        # sugestões de otimização de RAM
+km storage       # sugestões de otimização de disco
+km threat        # scan de anomalias comportamentais
 km watch         # monitor contínuo (Ctrl+C para parar)
-km ethics        # status do EthicsLock e audit log
-km --json        # saída JSON para integração
+km ethics        # status do EthicsLock e audit log da sessão
+km --json        # snapshot JSON para integração
 km --help        # ajuda completa
+```
+
+Também é possível executar sem instalar os entry points:
+
+```bash
+python -m kernelmind.cli.km --help
 ```
 
 ---
@@ -78,8 +97,14 @@ km --help        # ajuda completa
 ## Uso — API REST
 
 ```bash
-python3 api/server.py
+km-api
 # Acesse: http://localhost:7771/docs
+```
+
+Ou:
+
+```bash
+python -m kernelmind.api.server
 ```
 
 Endpoints principais:
@@ -92,17 +117,17 @@ Endpoints principais:
 | GET | `/memory/suggest` | Sugestões de otimização |
 | GET | `/disk` | Métricas de disco |
 | GET | `/ethics/status` | Status do EthicsLock |
-| GET | `/ethics/log` | Audit log recente |
+| GET | `/ethics/log` | Audit log recente da sessão |
 | GET | `/health` | Health check |
+
+Por segurança, exponha a API apenas em redes confiáveis. Snapshots podem conter nomes de processos e métricas sensíveis do host.
 
 ---
 
 ## Princípios Éticos (EthicsLock)
 
-O EthicsLock é uma camada de código — não uma configuração. Não pode ser desabilitado.
-
-| Ação | Política |
-|------|----------|
+| Ação | Política nos módulos oficiais |
+|------|-------------------------------|
 | Leitura de métricas | Sempre permitida |
 | Sugestões ao usuário | Sempre permitidas |
 | Ajuste de parâmetro kernel | Requer confirmação |
@@ -110,7 +135,7 @@ O EthicsLock é uma camada de código — não uma configuração. Não pode ser
 | Excluir arquivo/cache | Requer confirmação explícita |
 | Operações de rede | Bloqueadas por padrão |
 
-Toda decisão é registrada em audit log JSONL com fingerprint SHA-256.
+Toda avaliação é registrada em audit log JSONL com fingerprint SHA-256 e encadeamento simples por hash anterior. Veja [docs/ethics.md](docs/ethics.md).
 
 ---
 
@@ -120,9 +145,30 @@ KernelMind expõe ferramentas MCP sob o namespace `io.github.armazen-nft/kernelm
 
 - `kernel_snapshot` — estado completo do sistema
 - `kernel_memory_suggest` — sugestões de RAM
+- `kernel_storage_suggest` — sugestões de disco
+- `kernel_threat_scan` — scan de anomalias comportamentais
 - `kernel_ethics_status` — auditoria ética
 
-Ver [docs/mcp-integration.md](docs/mcp-integration.md) para detalhes.
+Teste local:
+
+```bash
+km-mcp --test
+python -m kernelmind.mcp.tool --tool kernel_snapshot
+```
+
+Ver [docs/mcp-integration.md](docs/mcp-integration.md) para configuração em clientes MCP.
+
+---
+
+## Qualidade e testes
+
+```bash
+python -m pytest
+python -m ruff check kernelmind tests
+python -m compileall kernelmind
+```
+
+O CI oficial usa a matriz Python 3.10, 3.11 e 3.12.
 
 ---
 
@@ -136,4 +182,4 @@ KernelMind é parte da infraestrutura do [Proof of Energy](https://proofofenergy
 
 ## Licença
 
-[AGPL-3.0](LICENSE) — código aberto, modificações devem ser compartilhadas.
+[AGPL-3.0 com cláusula ética PoE](LICENSE) — código aberto; modificações e uso em rede devem respeitar os termos da licença.

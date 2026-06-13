@@ -4,15 +4,16 @@ FastAPI — expõe métricas reais do kernel via HTTP/JSON
 Porta padrão: 7771
 """
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import time
 from dataclasses import asdict
 
-from kernelmind.core.sensor import KernelSense
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
 from kernelmind.core.memory import MemoryWeaver
-from kernelmind.ethics.lock import EthicsLock, ActionType
+from kernelmind.core.sensor import KernelSense
+from kernelmind.ethics.lock import ActionType, EthicsLock
 
 app = FastAPI(
     title="KernelMind API",

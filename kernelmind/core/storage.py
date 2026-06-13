@@ -5,8 +5,8 @@ Sugestões concretas — sem deletar nada sem consentimento.
 """
 
 import os
-import subprocess
 import shutil
+import subprocess
 from dataclasses import dataclass
 from typing import Optional
 
@@ -86,7 +86,7 @@ class StorageGuard:
         for f in big_tmp[:3]:
             suggestions.append(StorageSuggestion(
                 priority=2,
-                title=f"Arquivo grande em /tmp",
+                title="Arquivo grande em /tmp",
                 description=f"{f['path']} ({f['mb']} MB) — verifique se ainda é necessário.",
                 action_type="delete",
                 command=f"ls -lh {f['path']}",
@@ -101,7 +101,7 @@ class StorageGuard:
                 title="Log grande detectado",
                 description=f"{f['path']} ({f['mb']} MB). Pode ser truncado com journalctl.",
                 action_type="tune",
-                command=f"sudo journalctl --vacuum-size=100M",
+                command="sudo journalctl --vacuum-size=100M",
                 estimated_gain_mb=f['mb'],
             ))
 

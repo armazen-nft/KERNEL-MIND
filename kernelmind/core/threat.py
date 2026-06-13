@@ -4,11 +4,12 @@ Detecção de anomalias comportamentais no sistema.
 Sem antivírus clássico — análise de padrões reais do kernel.
 """
 
-import psutil
 import os
 import time
 from dataclasses import dataclass
 from typing import Optional
+
+import psutil
 
 
 @dataclass
@@ -55,7 +56,9 @@ class ThreatRadar:
                             description=f"Processo com EUID=root mas UID real={uids.real}",
                             pid=p.info['pid'],
                             process_name=p.info['name'],
-                            recommendation="Verificar se este processo deveria ter privilégio root.",
+                            recommendation=(
+                                "Verificar se este processo deveria ter privilégio root."
+                            ),
                         ))
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass

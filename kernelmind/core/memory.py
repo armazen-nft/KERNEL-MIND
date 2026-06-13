@@ -4,11 +4,12 @@ Analisa RAM real e gera sugestões concretas e acionáveis.
 Não age — sugere. A ação requer EthicsLock + confirmação humana.
 """
 
-import psutil
-import subprocess
 import os
+import subprocess
 from dataclasses import dataclass
 from typing import Optional
+
+import psutil
 
 
 @dataclass
@@ -147,7 +148,6 @@ class MemoryWeaver:
 
 
 if __name__ == "__main__":
-    import json
     mw = MemoryWeaver()
     suggestions = mw.analyze()
     print(f"=== MemoryWeaver — {len(suggestions)} sugestão(ões) ===\n")

@@ -12,7 +12,7 @@
 - CLI `km` com snapshot, memory, watch, ethics
 - Servidor MCP stdio compatível com Claude Desktop e FastMCP
 - 5 ferramentas MCP: kernel_snapshot, kernel_memory_suggest, kernel_storage_suggest, kernel_threat_scan, kernel_ethics_status
-- Testes automatizados (pytest) para sensor, ethics e API
+- Testes automatizados (pytest) para EthicsLock, API, CLI e MCP
 - GitHub Actions: CI (Python 3.10/3.11/3.12), release automation
 - Script de instalação `scripts/setup.sh` para Linux/macOS
 - Configuração `config/defaults.toml`
