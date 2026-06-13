@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KernelMind — IA Ética para Kernel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
+  :root {
+    --void:    #070B12;
+    --deep:    #0D1421;
+    --surface: #111927;
+    --border:  #1E2D42;
+    --pulse:   #00D4A4;
+    --pulse-lt: #E6FAF5;
+    --pulse-md: #B3EFE0;
+    --warm:    #FF8C42;
+    --sky:     #3B82F6;
+    --sky-lt:  #EFF6FF;
+    --alert:   #FF5C5C;
+    --dim:     #3A5068;
+    --text:    #C8D8E8;
+    --muted:   #5A7A96;
+    --ink:     #1A2332;
+    --bg:      #F7F9FC;
+    --mono:    'IBM Plex Mono', monospace;
+    --sans:    'Space Grotesk', sans-serif;
+    --sans2:   'Nunito', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+
+  body {
+    background: linear-gradient(135deg, var(--void) 0%, var(--deep) 100%);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* AMBIENT GRID */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(7, 11, 18, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(30, 45, 66, 0.5);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 0.9rem; font-weight: 600;
+    color: var(--pulse);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .logo:hover { opacity: 0.8; }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--pulse);
+    box-shadow: 0 0 12px var(--pulse);
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .header-nav {
+    display: flex; gap: 2rem; align-items: center;
+  }
+
+  .nav-link {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--pulse); }
+
+  /* HERO */
+  .hero {
+    position: relative; z-index: 1;
+    padding: 120px 2rem 80px;
+    max-width: 1000px; margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 80%, rgba(0, 212, 164, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; color: var(--pulse);
+    text-transform: uppercase; margin-bottom: 1.2rem;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    position: relative; z-index: 1;
+  }
+
+  .hero-label::before, .hero-label::after {
+    content: ''; display: block; width: 40px; height: 1px;
+    background: var(--pulse); opacity: 0.4;
+  }
+
+  h1 {
+    font-family: var(--sans); font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 600; line-height: 1.15;
+    color: #fff; margin-bottom: 1.2rem;
+    letter-spacing: -0.02em;
+    position: relative; z-index: 1;
+  }
+
+  h1 strong {
+    font-weight: 700; color: var(--pulse);
+    position: relative;
+  }
+
+  h1 strong::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--pulse), transparent);
+  }
+
+  .hero-sub {
+    font-size: 1rem; color: rgba(255, 255, 255, 0.7); line-height: 1.8;
+    max-width: 600px; margin: 0 auto 2.5rem;
+    position: relative; z-index: 1;
+  }
+
+  /* CTA BUTTONS */
+  .hero-cta {
+    display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap;
+    position: relative; z-index: 1;
+    margin-bottom: 1rem;
+  }
+
+  .btn {
+    font-family: var(--mono); font-size: 0.75rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.75rem 2rem; border-radius: 6px;
+    border: 1px solid;
+    cursor: pointer; transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 600;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--pulse) 0%, #00B894 100%);
+    color: var(--ink);
+    border-color: var(--pulse);
+    box-shadow: 0 8px 32px rgba(0, 212, 164, 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 12px 48px rgba(0, 212, 164, 0.5);
+    transform: translateY(-3px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--pulse);
+    background: rgba(0, 212, 164, 0.1);
+    color: var(--pulse);
+  }
+
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+
+  /* DOWNLOAD CARD */
+  .download-card {
+    background: rgba(13, 20, 33, 0.8);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 500px;
+    margin: 2rem auto 0;
+    position: relative; z-index: 1;
+    backdrop-filter: blur(10px);
+  }
+
+  .download-card h3 {
+    color: #fff;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+  }
+
+  .os-selector {
+    display: flex; gap: 0.5rem; justify-content: center;
+    flex-wrap: wrap; margin: 1.2rem 0;
+  }
+
+  .os-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.55rem 1.2rem; border-radius: 6px;
+    font-family: var(--mono); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+
+  .os-btn:hover { border-color: var(--pulse); color: #fff; background: rgba(0, 212, 164, 0.1); }
+  .os-btn.active {
+    background: var(--pulse); border-color: var(--pulse);
+    color: var(--ink);
+    box-shadow: 0 4px 16px rgba(0, 212, 164, 0.4);
+  }
+
+  .download-info {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+    margin: 1rem 0;
+    line-height: 1.6;
+  }
+
+  .download-link {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem 1.2rem;
+    background: var(--pulse);
+    color: var(--ink);
+    text-decoration: none;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .download-link:hover {
+    box-shadow: 0 8px 24px rgba(0, 212, 164, 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* FEATURES GRID */
+  .features {
+    position: relative; z-index: 1;
+    padding: 4rem 2rem;
+    max-width: 1000px; margin: 0 auto;
+  }
+
+  .features-title {
+    text-align: center;
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; color: var(--pulse);
+    text-transform: uppercase; margin-bottom: 2rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .feature-card {
+    background: rgba(17, 25, 39, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.8rem;
+    transition: all 0.3s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--pulse);
+    background: rgba(17, 25, 39, 0.9);
+    transform: translateY(-4px);
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .feature-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* LOADING STATE */
+  .loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--pulse);
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 2rem;
+    font-family: var(--mono); font-size: 0.7rem; color: var(--dim);
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  footer span { color: var(--muted); }
+
+  .footer-links {
+    display: flex; gap: 2rem; justify-content: center; flex: 1;
+  }
+
+  .footer-link {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-link:hover { color: var(--pulse); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    .hero { padding: 80px 1rem 60px; }
+    .hero-cta { flex-direction: column; }
+    .btn { width: 100%; justify-content: center; }
+    footer { flex-direction: column; }
+    .footer-links { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a href="#" class="logo">
+    <div class="logo-dot"></div>
+    KERNELMIND
+  </a>
+  <nav class="header-nav">
+    <a href="#features" class="nav-link">Recursos</a>
+    <a href="#download" class="nav-link">Download</a>
+    <a href="https://github.com/armazen-nft/KERNEL-MIND" class="nav-link" target="_blank">GitHub</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">✦ IA Ética para Kernel</div>
+  <h1>Monitore seu <strong>SO</strong> com<br>inteligência e <strong>consentimento</strong></h1>
+  <p class="hero-sub">
+    KernelMind observa CPU, RAM, disco em tempo real. Otimiza o kernel sem tomar decisões que não te pertencem.<br>
+    <strong>Consentimento explícito. Transparência total. Ética imutável.</strong>
+  </p>
+
+  <div class="hero-cta">
+    <button class="btn btn-primary" onclick="scrollToDownload()">
+      <span class="btn-icon">⬇</span>
+      Baixar Agora
+    </button>
+    <a href="https://github.com/armazen-nft/KERNEL-MIND" class="btn btn-secondary" target="_blank">
+      <span class="btn-icon">⭐</span>
+      Ver no GitHub
+    </a>
+  </div>
+
+  <!-- DOWNLOAD CARD -->
+  <div class="download-card" id="download">
+    <h3>📥 Download KernelMind</h3>
+    
+    <div class="os-selector">
+      <button class="os-btn active" onclick="selectOS('linux', this)">
+        🐧 Linux
+      </button>
+      <button class="os-btn" onclick="selectOS('windows', this)">
+        🪟 Windows
+      </button>
+      <button class="os-btn" onclick="selectOS('mac', this)">
+        🍎 macOS
+      </button>
+    </div>
+
+    <div class="download-info">
+      <div id="osInfo">
+        <strong>Linux</strong><br>
+        Arquivo: <code>kernelmind-0.9.1-linux-x86_64.tar.gz</code><br>
+        Tamanho: ~25 MB
+      </div>
+    </div>
+
+    <button class="download-link" id="downloadBtn" onclick="downloadRelease('linux')">
+      ⬇ Baixar (Linux)
+    </button>
+
+    <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--muted);">
+      <strong>Ou instale via package manager:</strong><br>
+      <code style="color: var(--pulse);">pip install kernelmind</code>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-title">🔧 Recursos Principais</div>
+  
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">IA Ética</div>
+      <div class="feature-desc">Nunca age sem consentimento. Sugere, você decide. EthicsLock imutável.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Monitoramento Real-Time</div>
+      <div class="feature-desc">CPU, RAM, disco e processos. Análise contínua com pegada mínima.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-title">Transparência Total</div>
+      <div class="feature-desc">Log assinado de cada decisão. Nada acontece nas sombras.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <div class="feature-title">REST API + CLI</div>
+      <div class="feature-desc">Integre com qualquer sistema. MCP pronto para PoE.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <div class="feature-title">Segurança Primeiro</div>
+      <div class="feature-desc">Detecção de anomalias. Comportamento suspeito? Você é notificado.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🌍</div>
+      <div class="feature-title">Offline Primeiro</div>
+      <div class="feature-desc">Dados locais. Sem telemetria. Funciona sem internet.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>KERNELMIND v0.9.1 — AGPL-3.0</div>
+  <div class="footer-links">
+    <a href="https://github.com/armazen-nft/KERNEL-MIND/blob/main/LICENSE" class="footer-link" target="_blank">Licença</a>
+    <a href="https://github.com/armazen-nft/KERNEL-MIND/wiki" class="footer-link" target="_blank">Documentação</a>
+    <a href="https://github.com/armazen-nft" class="footer-link" target="_blank">Autor</a>
+  </div>
+  <div>Ética verificada para Proof of Energy</div>
+</footer>
+
+<script>
+let currentOS = 'linux';
+
+const osConfig = {
+  linux: {
+    name: 'Linux',
+    icon: '🐧',
+    file: 'kernelmind-0.9.1-linux-x86_64.tar.gz',
+    size: '~25 MB',
+    cmd: 'tar -xzf kernelmind-0.9.1-linux-x86_64.tar.gz && cd kernelmind && ./install.sh'
+  },
+  windows: {
+    name: 'Windows',
+    icon: '🪟',
+    file: 'KernelMind-Setup-0.9.1.exe',
+    size: '~45 MB',
+    cmd: 'Duplo clique no instalador'
+  },
+  mac: {
+    name: 'macOS',
+    icon: '🍎',
+    file: 'KernelMind-0.9.1.dmg',
+    size: '~35 MB',
+    cmd: 'brew install kernelmind'
+  }
+};
+
+function selectOS(os, btn) {
+  currentOS = os;
+  document.querySelectorAll('.os-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const config = osConfig[os];
+  const osInfoDiv = document.getElementById('osInfo');
+  osInfoDiv.innerHTML = `
+    <strong>${config.icon} ${config.name}</strong><br>
+    Arquivo: <code>${config.file}</code><br>
+    Tamanho: ${config.size}
+  `;
+
+  const downloadBtn = document.getElementById('downloadBtn');
+  downloadBtn.textContent = `⬇ Baixar (${config.name})`;
+  downloadBtn.onclick = () => downloadRelease(os);
+}
+
+function downloadRelease(os) {
+  const config = osConfig[os];
+  const downloadBtn = document.getElementById('downloadBtn');
+  
+  // Show loading state
+  const originalText = downloadBtn.textContent;
+  downloadBtn.innerHTML = '<span class="loading"><span class="spinner"></span> Preparando download...</span>';
+  downloadBtn.disabled = true;
+
+  // Simulate download preparation and trigger
+  setTimeout(() => {
+    // Construct GitHub releases URL
+    const repoUrl = 'https://github.com/armazen-nft/KERNEL-MIND/releases/download/v0.9.1';
+    const fileUrl = `${repoUrl}/${config.file}`;
+    
+    // Create temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = config.file;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    
+    // Reset button
+    downloadBtn.textContent = originalText;
+    downloadBtn.disabled = false;
+
+    // Show success message
+    showNotification(`Download de ${config.file} iniciado!`);
+  }, 800);
+}
+
+function scrollToDownload() {
+  const downloadCard = document.getElementById('download');
+  downloadCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showNotification(msg) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--pulse);
+    color: var(--ink);
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  `;
+  notification.textContent = msg;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => document.body.removeChild(notification), 300);
+  }, 3000);
+}
+
+// Add animation keyframes
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(400px); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
