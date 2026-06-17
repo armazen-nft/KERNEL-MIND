@@ -2,7 +2,7 @@
 
 ## Princípio
 
-O EthicsLock não é uma configuração. É uma camada de código no caminho crítico de execução. Toda ação do KernelMind passa por ela antes de acontecer. Não existe bypass.
+O EthicsLock não é uma configuração. É uma camada de código no caminho crítico de execução. Toda ação do KernelMind passa por ela antes de acontecer. Não existe bypass nos módulos oficiais do projeto; forks e alterações devem ser auditados por revisão, testes e hashes de release.
 
 Esta abordagem reflete o princípio central do ecossistema PoE: **simbiose obrigatória** — nenhuma entidade (humana ou artificial) age unilateralmente sobre o sistema do outro sem consentimento.
 
@@ -30,7 +30,7 @@ Cada decisão do EthicsLock gera uma entrada JSONL em `/tmp/kernelmind_audit.jso
 {"ts": 1720000010.0, "action": "network", "desc": "enviar métricas", "verdict": "BLOQUEADO", "fp": "b4c3d2e1f0a9b8c7"}
 ```
 
-O campo `fp` é um SHA-256 truncado do conteúdo da entrada — permite verificar que o log não foi alterado retroativamente.
+O campo `fp` é um SHA-256 completo do conteúdo da entrada, incluindo o hash anterior (`prev_fp`). Esse encadeamento oferece detecção simples de alteração retroativa dentro do arquivo de auditoria local.
 
 ---
 
@@ -49,7 +49,7 @@ Ver [LICENSE](../LICENSE) para o texto completo.
 
 ## Extensão
 
-Para adicionar novos tipos de ação, edite `ethics/lock.py`:
+Para adicionar novos tipos de ação, edite `kernelmind/ethics/lock.py`:
 
 ```python
 class ActionType(Enum):

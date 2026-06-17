@@ -29,7 +29,7 @@ Adicione ao arquivo `claude_desktop_config.json`:
   "mcpServers": {
     "kernelmind": {
       "command": "python3",
-      "args": ["/caminho/para/kernelmind/mcp/tool.py"],
+      "args": ["-m", "kernelmind.mcp.tool"],
       "env": {}
     }
   }
@@ -48,8 +48,8 @@ Localização do arquivo de config:
 ```python
 # No seu servidor FastMCP existente (poe-mcp):
 import sys
-sys.path.insert(0, '/caminho/para/kernelmind')
-from mcp.tool import TOOLS
+sys.path.insert(0, '/caminho/para/KERNEL-MIND')
+from kernelmind.mcp.tool import TOOLS
 
 # Registrar ferramentas KernelMind no namespace PoE
 for name, info in TOOLS.items():
@@ -102,12 +102,12 @@ O MCP não pode contornar o EthicsLock. Nenhuma IA pode executar ações destrut
 
 ```bash
 # Testar todas as ferramentas
-python3 mcp/tool.py --test
+python -m kernelmind.mcp.tool --test
 
 # Testar ferramenta específica
-python3 mcp/tool.py --tool kernel_snapshot
-python3 mcp/tool.py --tool kernel_memory_suggest
-python3 mcp/tool.py --tool kernel_ethics_status
+python -m kernelmind.mcp.tool --tool kernel_snapshot
+python -m kernelmind.mcp.tool --tool kernel_memory_suggest
+python -m kernelmind.mcp.tool --tool kernel_ethics_status
 ```
 
 ---
@@ -118,10 +118,10 @@ Para expor KernelMind na máquina MELISSA_AI:
 
 ```bash
 # 1. Clonar repositório
-git clone https://github.com/armazen-nft/kernelmind.git
+git clone https://github.com/armazen-nft/KERNEL-MIND.git
 
 # 2. Instalar
-cd kernelmind && bash scripts/setup.sh
+cd KERNEL-MIND && bash scripts/setup.sh
 
 # 3. Adicionar ao servidor MCP da MELISSA_AI
 km-mcp  # executa servidor stdio — conectar ao seu orchestrator MCP

@@ -13,14 +13,13 @@ Para usar com servidor MCP existente, importe McpKernelMind e registre.
 """
 
 import json
-import time
 from dataclasses import asdict
 
-from kernelmind.core.sensor import KernelSense
 from kernelmind.core.memory import MemoryWeaver
+from kernelmind.core.sensor import KernelSense
 from kernelmind.core.storage import StorageGuard
 from kernelmind.core.threat import ThreatRadar
-from kernelmind.ethics.lock import EthicsLock, ActionType
+from kernelmind.ethics.lock import ActionType, EthicsLock
 
 # ── Instâncias singleton ──
 _sensor  = KernelSense()
@@ -130,7 +129,10 @@ def kernel_ethics_status(args: dict = None) -> dict:
 TOOLS = {
     "kernel_snapshot": {
         "fn": kernel_snapshot,
-        "description": "Retorna snapshot completo do sistema: CPU, RAM, disco, processos, temperatura.",
+        "description": (
+            "Retorna snapshot completo do sistema: CPU, RAM, disco, "
+            "processos, temperatura."
+        ),
         "inputSchema": {"type": "object", "properties": {}, "required": []},
     },
     "kernel_memory_suggest": {

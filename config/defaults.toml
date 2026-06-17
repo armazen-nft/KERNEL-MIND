@@ -1,0 +1,16 @@
+# KernelMind default configuration
+# Values here are intentionally conservative: KernelMind observes and suggests;
+# official modules must not execute TUNE/KILL/DELETE without EthicsLock approval.
+
+[api]
+host = "127.0.0.1"
+port = 7771
+allow_origins = ["http://localhost", "http://127.0.0.1"]
+
+[ethics]
+audit_path = "/tmp/kernelmind_audit.jsonl"
+network_blocked = true
+
+[sensor]
+disk_path = "/"
+snapshot_process_limit = 5

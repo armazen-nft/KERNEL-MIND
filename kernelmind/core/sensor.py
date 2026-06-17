@@ -4,12 +4,13 @@ Leitura real de métricas do sistema via psutil + /proc
 Sem simulação. Sem mock. Dados do kernel agora.
 """
 
-import psutil
 import os
-import time
 import platform
-from dataclasses import dataclass, asdict
+import time
+from dataclasses import asdict, dataclass
 from typing import Optional
+
+import psutil
 
 
 @dataclass
@@ -114,8 +115,16 @@ class KernelSense:
             if self._last_disk_io and io_now:
                 dt = t_now - self._last_disk_time
                 if dt > 0:
-                    read_s = (io_now.read_bytes - self._last_disk_io.read_bytes) / dt / (1024*1024)
-                    write_s = (io_now.write_bytes - self._last_disk_io.write_bytes) / dt / (1024*1024)
+                    read_s = (
+                        (io_now.read_bytes - self._last_disk_io.read_bytes)
+                        / dt
+                        / (1024 * 1024)
+                    )
+                    write_s = (
+                        (io_now.write_bytes - self._last_disk_io.write_bytes)
+                        / dt
+                        / (1024 * 1024)
+                    )
             self._last_disk_io = io_now
             self._last_disk_time = t_now
         except Exception:
@@ -156,7 +165,11 @@ class KernelSense:
                     pid=info['pid'],
                     name=info['name'] or '?',
                     cpu_percent=info['cpu_percent'] or 0.0,
-                    mem_mb=round((info['memory_info'].rss if info['memory_info'] else 0) / (1024*1024), 1),
+                    mem_mb=round(
+                        (info['memory_info'].rss if info['memory_info'] else 0)
+                        / (1024 * 1024),
+                        1,
+                    ),
                     status=info['status'] or 'unknown',
                 ))
             except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -184,4 +197,10 @@ if __name__ == "__main__":
     import json
     ks = KernelSense()
     snap = ks.snapshot()
-    print(json.dumps(asdict(snap) if hasattr(snap, '__dataclass_fields__') else snap.__dict__, indent=2, default=str))
+    print(
+        json.dumps(
+            asdict(snap) if hasattr(snap, '__dataclass_fields__') else snap.__dict__,
+            indent=2,
+            default=str,
+        )
+    )
